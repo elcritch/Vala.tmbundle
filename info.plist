@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>name</key>
+	<string>Vala</string>
+	<key>ordering</key>
+	<array>
+		<string>ECE9F0DB-3BCD-48B6-A74E-DAD62411E67A</string>
+		<string>D0E56D84-1CCB-47EA-8733-6FF799E1DD1A</string>
+		<string>36A3F653-FF50-4192-8A13-EECFF7632843</string>
+		<string>A9FCF248-4006-486A-BA70-D2FF7E8CD2D3</string>
+		<string>84625500-22A5-4CE5-9ACB-DA4CA47B71AA</string>
+	</array>
+	<key>uuid</key>
+	<string>21438803-E23D-4D63-A195-1E51D41DBF3F</string>
+</dict>
+</plist>

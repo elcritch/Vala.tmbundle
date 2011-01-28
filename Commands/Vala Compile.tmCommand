@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>saveModifiedFiles</string>
+	<key>command</key>
+	<string>#!/bin/bash
+
+. "$TM_SUPPORT_PATH/lib/webpreview.sh"
+html_header "Compiling “${TM_FILENAME} using $(valac --version)”…"
+
+cd "$TM_DIRECTORY"
+
+# Standard vala compiler output?
+export BASENAME=${TM_FILENAME%.vala}
+
+# get compiler arguments
+FLAGS=($(grep "//flags" &lt; "$TM_FILENAME"))
+FLAGS=${FLAGS[@]:1}
+FLAGS=$(sh -c "echo ${FLAGS[@]}")
+
+# get arguments
+PARGS=($(grep "//args" &lt; "$TM_FILENAME"))
+PARGS=${pargs[@]:1}
+
+# get arguments
+VINCLUDES=($(grep "//use" &lt; "$TM_FILENAME"))
+VINCLUDES=${VINCLUDES[@]:1}
+
+REGEX='(.+\.vala):(\d+)(\.\d+-\d+\.\d+)'
+CCREGEX='(.+\.c):(\d+)(:)'
+DEFAULT='&lt;a href=''txmt://open?url=file://#{absPth($1)}&amp;line=#{$2}''&gt;#{esc($1)}:#{$2}#{$3}&lt;/a&gt;'
+SPAN_RED='&lt;span style=''color: red''&gt;#{$1}&lt;/span&gt;'
+
+function Wrap() { xargs -I% echo "${1}%${@}"; }
+
+function Parser() {
+	"${TM_RUBY:-ruby}" -rtm_parser -pe '
+			BEGIN{require "pathname"; def absPth(p); Pathname.new(p).realpath; end; def esc(l); TextMate.html_esc(l); end };
+			gsub(/'"$1"'/) { "'"$2"'" }
+		' 
+}
+
+TIMETMP=$(mktemp )
+TMPFILE=$(mktemp )
+rm $TMPFILE; mkfifo $TMPFILE
+
+export CC=clang
+gtime --portability -o $TIMETMP \
+	valac --vapi=${BASENAME}.vapi -C -H ${BASENAME}.h -c $FLAGS $VINCLUDES $TM_FILENAME \
+		2&gt; &gt;( Parser "$REGEX" "$DEFAULT" | Parser "$CCREGEX" "$DEFAULT" &gt; $TMPFILE ) &amp;
+
+
+echo "&lt;span style='color: darkred'&gt;&lt;pre&gt;"
+cat $TMPFILE 
+echo "&lt;/pre&gt;&lt;/span&gt;"
+
+echo "&lt;pre style='color: darkgreen'&gt;Done: $(cat $TIMETMP | tr '\n' ' ')&lt;/pre&gt;"
+
+html_footer
+</string>
+	<key>input</key>
+	<string>none</string>
+	<key>keyEquivalent</key>
+	<string>^c</string>
+	<key>name</key>
+	<string>Vala Compile</string>
+	<key>output</key>
+	<string>showAsHTML</string>
+	<key>scope</key>
+	<string>source.vala</string>
+	<key>uuid</key>
+	<string>36A3F653-FF50-4192-8A13-EECFF7632843</string>
+</dict>
+</plist>
